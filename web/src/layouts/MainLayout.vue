@@ -108,7 +108,9 @@
     <main class="main-content">
       <header class="top-bar">
         <div class="top-bar-left">
-          <el-button class="mobile-menu-btn" :icon="Menu" text @click="mobileMenuOpen = !mobileMenuOpen" />
+          <el-button class="mobile-menu-btn" text @click="mobileMenuOpen = !mobileMenuOpen">
+            <el-icon :size="22"><Fold /></el-icon>
+          </el-button>
           <h2 class="page-title">{{ pageTitle }}</h2>
         </div>
         <div class="top-bar-right">
@@ -151,7 +153,7 @@
         <el-icon :size="28" color="#67C23A"><Sunny /></el-icon>
         <span class="logo-text">QQ农场助手</span>
       </div>
-      <div class="account-selector">
+      <div class="account-selector" v-if="accounts.length > 0">
         <el-select v-model="currentUin" placeholder="选择账号" size="small" @change="onAccountChange" style="width:100%">
           <el-option v-for="acc in accounts" :key="acc.uin" :label="`${acc.nickname || acc.uin}`" :value="acc.uin" />
         </el-select>
@@ -465,6 +467,9 @@ onUnmounted(() => {
 
 .mobile-menu-btn {
   display: none;
+  font-size: 20px;
+  color: var(--text) !important;
+  padding: 4px 8px;
 }
 
 .page-title {
