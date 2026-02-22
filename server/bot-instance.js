@@ -130,6 +130,7 @@ class BotInstance extends EventEmitter {
             autoSell: true,
             autoBuyFertilizer: true,
             helpEvenExpFull: true,
+            skipStealRadish: true,  // 偷菜时跳过白萝卜
         };
 
         // ---------- 今日统计 ----------
@@ -1065,6 +1066,9 @@ class BotInstance extends EventEmitter {
     // ================================================================
 
     analyzeFriendLands(lands, myGid) {
+        // 白萝卜植物ID列表
+        const RADISH_PLANT_IDS = [2020002, 1020002];
+        
         const result = { stealable: [], stealableInfo: [], needWater: [], needWeed: [], needBug: [] };
         for (const land of lands) {
             const id = toNum(land.id);
@@ -1075,8 +1079,12 @@ class BotInstance extends EventEmitter {
             const phaseVal = currentPhase.phase;
             if (phaseVal === PlantPhase.MATURE) {
                 if (plant.stealable) {
-                    result.stealable.push(id);
                     const plantId = toNum(plant.id);
+                    // 跳过白萝卜
+                    if (this.featureToggles.skipStealRadish && RADISH_PLANT_IDS.includes(plantId)) {
+                        continue;
+                    }
+                    result.stealable.push(id);
                     result.stealableInfo.push({ landId: id, plantId, name: getPlantName(plantId) || plant.name || '未知' });
                 }
                 continue;
