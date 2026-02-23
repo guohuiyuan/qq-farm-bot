@@ -12,7 +12,6 @@ QQ 农场全自动挂机管理平台 — 多账号、可视化、实时控制
 
 基于 Node.js + Vue 3 构建的 QQ 农场自动化工具，支持多账号同时管理，提供 Web 可视化面板，实现种植、收获、偷菜、任务领取、仓库出售等全流程自动化。
 
-
 ---
 
 ## 功能特性
@@ -59,6 +58,7 @@ QQ 农场全自动挂机管理平台 — 多账号、可视化、实时控制
 | 实时日志 | 用户管理 |
 |:---:|:---:|
 | ![日志页](docs/images/account-logs.png) | ![用户管理](docs/images/admin-users.png) |
+
 ---
 ## 技术栈
 
@@ -74,223 +74,103 @@ QQ 农场全自动挂机管理平台 — 多账号、可视化、实时控制
 
 ---
 
-## 项目结构
-
-```
-qq-farm-bot/
-├── server/                  # 后端服务
-│   ├── index.js             # 服务器入口 (Express + Socket.io)
-│   ├── bot-instance.js      # Bot 实例 (核心农场逻辑)
-│   ├── bot-manager.js       # Bot 管理器 (多账号调度)
-│   ├── routes.js            # REST API 路由
-│   ├── auth.js              # JWT 认证中间件
-│   ├── database.js          # SQLite 数据库
-│   └── qr-service.js        # QR 扫码登录服务
-├── web/                     # 前端 (Vue 3 SPA)
-│   └── src/
-│       ├── views/           # 页面: 仪表盘/主页/土地/设置/日志/管理
-│       ├── layouts/         # MainLayout (侧边栏 + 顶栏)
-│       ├── stores/          # Pinia 状态管理 (auth/theme)
-│       ├── api/             # Axios API 封装
-│       └── socket/          # Socket.io 客户端
-├── src/
-│   ├── proto.js             # Protobuf 加载器
-│   ├── config.js            # 游戏常量配置
-│   └── gameConfig.js        # 植物/等级/物品配置解析
-├── proto/                   # Protobuf 协议定义文件
-├── gameConfig/              # 游戏数据 (Plant.json / ItemInfo.json / RoleLevel.json)
-├── tools/                   # 辅助工具 (经验收益计算器)
-└── data/                    # 运行时数据 (SQLite 数据库文件)
-```
-
----
-
-## 快速开始
+## 快速开始 (源码运行)
 
 ### 环境要求
 
 - **Node.js** >= 16
 
-### 安装
+### 安装与启动
 
 ```bash
-git clone https://github.com/maile456/qq-farm-bot.git
+git clone [https://github.com/maile456/qq-farm-bot.git](https://github.com/maile456/qq-farm-bot.git)
 cd qq-farm-bot
 
-# 一键安装所有依赖 (后端 + 前端)
+# 1. 一键安装所有依赖 (后端 + 前端)
 npm run setup
-```
 
-### 构建前端
-
-```bash
+# 2. 构建前端
 npm run build:web
-```
 
-### 启动服务
-
-```bash
+# 3. 启动服务
 npm start
+
 ```
 
-服务器默认运行在 `http://localhost:3000`。
-
-### 登录
-
-首次启动会自动创建默认管理员账号：
-
-| 用户名 | 密码 |
-|:---:|:---:|
-| `admin` | `admin123` |
-
-> **请登录后立即修改默认密码！**
-
-### 添加 QQ 账号
-
-1. 登录 Web 管理面板
-2. 点击「添加账号」
-3. 使用 QQ 扫描二维码
-4. 扫码成功后 Bot 自动启动挂机
+服务器默认运行在 `http://localhost:3000`。首次启动会自动创建默认管理员账号：`admin` / `admin123`（登录后请立即修改密码！）。
 
 ---
 
-## Docker 部署
+## Docker 部署 (推荐)
 
-### 一键部署（推荐）
+本项目提供了两种 Docker 部署方式，分别满足**小白用户快速体验**与**开发者本地调试**的需求。
+
+### 1. 生产环境部署（面向普通用户）
+
+直接拉取云端预编译好的镜像，实现秒级启动，无需在本地耗时编译环境。
+
+1. 在你的服务器或本地新建一个目录，并下载 `docker-compose.yml` 文件。
+2. （可选）修改文件中的 `BOT_ENCRYPT_KEY` 为你自己的 32 位随机字符串。
+3. 在该目录下运行：
 
 ```bash
-git clone https://github.com/maile456/qq-farm-bot.git
-cd qq-farm-bot
+docker compose up -d
 
-# 构建镜像并后台启动
-docker compose up -d --build
 ```
 
-首次构建需要 2~5 分钟（下载 Node 镜像 + 安装依赖 + 编译前端），完成后访问 `http://服务器IP:3000`。
+启动完成后，访问 `http://你的IP:3000` 即可。
 
-### 配置
+### 2. 开发环境部署（面向开发者）
 
-编辑 `docker-compose.yml` 修改端口和加密密钥：
+如果你修改了项目源码，希望在本地通过 Docker 重新构建并测试效果，请使用 `docker-compose.dev.yml`。
 
-```yaml
-services:
-  qq-farm-bot:
-    ports:
-      - "3000:3000"        # 修改左边的端口号以更换对外端口
-    environment:
-      - PORT=3000
-      - BOT_ENCRYPT_KEY=你的32位随机密钥  # 生产环境建议修改
+1. 克隆完整代码库到本地。
+2. 在项目根目录下运行：
+
+```bash
+docker compose -f docker-compose.dev.yml up -d --build
+
 ```
 
-> 生成随机密钥：`openssl rand -hex 16`
+> 首次本地构建需要 2~5 分钟时间（包含下载基础镜像、安装依赖和前端打包）。
 
 ---
 
-## GitHub Actions 自动部署
+## GitHub Actions 自动打包发布
 
-配置后，每次 push 到 main 分支，服务器会自动拉取最新代码并重启服务。
+本项目已配置完善的 GitHub Actions 工作流。当你推送代码并打上版本标签时，会自动构建跨平台镜像并推送到 DockerHub。
 
-### 1. 服务器准备
+**如何配置你的专属构建流：**
 
-在服务器上生成 SSH 密钥（如果已有可跳过）：
+1. Fork 本仓库。
+2. 在你的仓库 **Settings** -> **Secrets and variables** -> **Actions** 中添加以下两个 Secret：
+* `DOCKERHUB_USERNAME`: 你的 DockerHub 用户名
+* `DOCKERHUB_TOKEN`: 你的 DockerHub 访问令牌 (Access Token)
 
-```bash
-ssh-keygen -t ed25519 -C "deploy" -f ~/.ssh/id_ed25519 -N ""
-```
 
-将公钥添加到授权列表：
-
-```bash
-cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/authorized_keys
-```
-
-查看私钥（后面要用）：
-
-```bash
-cat ~/.ssh/id_ed25519
-```
-
-### 2. 配置 GitHub Secrets
-
-进入仓库页面 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
-添加以下 4 个 Secret：
-
-| Name | 值 |
-|:---|:---|
-| `SERVER_HOST` | 服务器公网 IP（如 `123.45.67.89`） |
-| `SERVER_USER` | SSH 用户名（如 `root`） |
-| `SERVER_PORT` | SSH 端口（通常 `22`） |
-| `SERVER_SSH_KEY` | 服务器私钥（`cat ~/.ssh/id_ed25519` 的完整输出，包含 BEGIN 和 END 行） |
-
-### 3. 创建 Workflow 文件
-
-在项目根目录创建 `.github/workflows/deploy.yml`：
-
-```yaml
-name: 自动部署到服务器
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 部署到服务器
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          script: |
-            cd /root/qq-farm-bot
-            git pull origin main
-            docker compose down
-            docker compose up -d --build
-```
-
-> 注意：将 `/root/qq-farm-bot` 替换为你服务器上项目的实际路径。
-
-### 4. 推送并测试
-
-```bash
-git add -A
-git commit -m "ci: 添加 GitHub Actions 自动部署"
-git push
-```
-
-前往仓库 **Actions** 标签页查看部署状态。首次可能失败，请检查：
-- Secrets 是否正确配置
-- 服务器是否已添加公钥到 `authorized_keys`
-- 项目路径是否正确
-
+3. 在 `docker-compose.yml` 中，将镜像地址修改为你自己的：`image: 你的用户名/qq-farm-bot:latest`
+4. 提交代码后，打上 `v` 开头的 tag 并推送（例如 `git tag v2.0.0 && git push origin v2.0.0`），即可触发自动构建发布。
 
 ---
 
-## 环境变量
+## 环境变量配置
 
 | 变量 | 默认值 | 说明 |
-|:---|:---|:---|
-| `PORT` | `3000` | 服务端口 |
-| `JWT_SECRET` | 内置随机值 | JWT 签名密钥 |
-| `BOT_ENCRYPT_KEY` | 内置默认值 | Session 加密密钥 |
+| --- | --- | --- |
+| `PORT` | `3000` | Web 面板与 API 服务端口 |
+| `JWT_SECRET` | 内置随机值 | JWT 签名密钥（建议生产环境通过环境变量覆盖） |
+| `BOT_ENCRYPT_KEY` | 内置默认值 | Session AES-256 加密密钥（强烈建议生产环境修改，需满 32 字符） |
 
 ---
-
 
 ## 致谢
 
 本项目在学习和开发过程中参考了以下优秀的开源项目，在此表示感谢：
 
-- [linguo2625469/qq-farm-bot](https://github.com/linguo2625469/qq-farm-bot) — QQ 农场 Bot 核心实现
-- [lkeme/QRLib](https://github.com/lkeme/QRLib) — QQ 扫码登录库
-- [QianChenJun/qq-farm-bot](https://github.com/QianChenJun/qq-farm-bot) — QQ 农场 Bot 参考实现
-- [Penty-d/qq-farm-bot-ui](https://github.com/Penty-d/qq-farm-bot-ui) — QQ 农场 Bot 多功能参考实现
+* [linguo2625469/qq-farm-bot](https://github.com/linguo2625469/qq-farm-bot) — QQ 农场 Bot 核心实现
+* [lkeme/QRLib](https://github.com/lkeme/QRLib) — QQ 扫码登录库
+* [QianChenJun/qq-farm-bot](https://github.com/QianChenJun/qq-farm-bot) — QQ 农场 Bot 参考实现
+* [Penty-d/qq-farm-bot-ui](https://github.com/Penty-d/qq-farm-bot-ui) — QQ 农场 Bot 多功能参考实现
 
 ---
 
@@ -302,4 +182,4 @@ git push
 
 ## 许可证
 
-[MIT License](LICENSE)
+[MIT License](https://www.google.com/search?q=LICENSE)

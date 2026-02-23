@@ -1,14 +1,16 @@
 services:
   qq-farm-bot:
-    build: .
+    # 直接拉取线上镜像，实现秒级启动
+    # 【注意】请将下面的 your_dockerhub_username 替换为您实际的 DockerHub 用户名
+    image: maile456/qq-farm-bot:latest
     container_name: qq-farm-bot
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:3000" 
     volumes:
-      # 持久化数据库，防止容器重建后数据丢失
-      - ./data:/app/data
+      # 持久化数据库，防止容器重建后数据丢失 
+      - ./data:/app/data 
     environment:
-      - PORT=3000
-      # 生产环境请修改为你自己的加密密钥（32字符）
-      - BOT_ENCRYPT_KEY=qq-farm-bot-default-key-32bytes!
+      - PORT=3000 
+      # 生产环境请修改为你自己的加密密钥（32字符） 
+      - BOT_ENCRYPT_KEY=qq-farm-bot-default-key-32bytes! 
